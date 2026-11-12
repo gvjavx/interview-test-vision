@@ -1,0 +1,12 @@
+services:
+  restapi:
+    build: ./RestApi
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  websocket:
+    build: ./WebSocketApp
+    ports:
+      - "5001:5001"
+    restart: unless-stopped

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat</title>
+  <style>
+    body { font: 16px system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+    #messages { list-style: none; min-height: 10rem; border: 1px solid #ccc; padding: .5rem; }
+    form { display: flex; gap: .5rem; margin-top: .5rem; }
+    input { flex: 1; padding: .5rem; }
+  </style>
+</head>
+<body>
+  <h1>Chat</h1>
+  <p id="status">Connecting...</p>
+  <ul id="messages"></ul>
+  <form id="send">
+    <input id="text" aria-label="Message" autocomplete="off" maxlength="1000" required>
+    <button id="send-button" disabled>Send</button>
+  </form>
+  <script>
+    const status = document.getElementById('status');
+    const messages = document.getElementById('messages');
+    const text = document.getElementById('text');
+    const sendButton = document.getElementById('send-button');
+    const socket = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`);
+
+    socket.onopen = () => {
+      status.textContent = 'Connected';
+      sendButton.disabled = false;
+    };
+    socket.onclose = () => {
+      status.textContent = 'Disconnected. Reload the page to reconnect.';
+      sendButton.disabled = true;
+    };
+    socket.onmessage = event => {
+      const item = document.createElement('li');
+      item.textContent = event.data;
+      messages.append(item);
+    };
+
+    document.getElementById('send').onsubmit = event => {
+      event.preventDefault();
+      socket.send(text.value);
+      text.value = '';
+    };
+  </script>
+</body>
+</html>
